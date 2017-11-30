@@ -86,7 +86,7 @@
 
                 }, onTaskSuccess(task) {
                     //一个任务上传成功后回调
-                    document.getElementById('result').innerHTML = `<a target="_blank" href="http://77fxsr.com2.z0.glb.qiniucdn.com/${task.result.key}"/>${task._file.name}<a>`
+                    document.getElementById('result').innerHTML = `<a target="_blank" href="http://77fxsr.com2.z0.glb.qiniucdn.com/${task.result.key}"/>${task.result.key}<a>`
                 }, onTaskFail(task) {
                     //一个任务在经历重传后依然失败后回调此函数
 
