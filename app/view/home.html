@@ -30,9 +30,13 @@
         <div>
             <h2>七牛客户端（浏览器）分片上传</h2>
             <h2>可以上传非常大的文件 如视频 非常nb</h2>
+            <h2>js库用的是 <a href="https://github.com/lsxiao/qiniu4js" target="_blank">qiniu4js</a></h2>
+            <h2>这里还限定了格式 具体用法看这个库的repo</h2>
+            <h2>出错一般是获取七牛token出错了 可以调整egg的curl超时 或者把token缓存起来 放redis里设置个半个小时左右的生命周期</h2>
             <button id="uploadButton">
                 上传文件
             </button>
+            <div id="info"></div>
             <div id="progress"></div>            
             <div id="result"></div>
         </div>
@@ -43,7 +47,7 @@
     <script src="/public/js/uuidv5.min.js"></script>
     <script>
         let uploader = new Qiniu.UploaderBuilder()
-            .debug(true)//开启debug，默认false
+            .debug(false)//开启debug，默认false
             .button('uploadButton')//指定上传按钮
             .scheme("https")
             .retry(0)//设置重传次数，默认0，不重传
@@ -71,6 +75,7 @@
                     //开始上传
 
                 }, onTaskGetKey(task) {
+                    document.getElementById('info').innerHTML = task._file.name + '<br>' + task._file.type + '<br>' + task._file.size
                     //为每一个上传的文件指定key,如果不指定则由七牛服务器自行处理
                     return `${uuidv5.URL}.${task.file.name.split('.').pop()}`;
 
@@ -81,7 +86,7 @@
 
                 }, onTaskSuccess(task) {
                     //一个任务上传成功后回调
-                    document.getElementById('result').innerHTML = `http://77fxsr.com2.z0.glb.qiniucdn.com/${task.result.key}`
+                    document.getElementById('result').innerHTML = `<a target="_blank" href="http://77fxsr.com2.z0.glb.qiniucdn.com/${task.result.key}"/>${task._file.name}<a>`
                 }, onTaskFail(task) {
                     //一个任务在经历重传后依然失败后回调此函数
 
