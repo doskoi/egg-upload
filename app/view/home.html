@@ -1,23 +1,99 @@
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Upload</title>
 </head>
+
 <body>
     <div>
         {% block content %}
-        <h2>Upload Image</h2>
-        <form method="POST" action="/upload?_csrf={{ ctx.csrf | safe }}" enctype="multipart/form-data">
-            <ul>
-            <li>Image Name: <input name="title" type="text" /></li>
-            <li><input name="file" type="file" /></li>
-            <li><input type="submit" value="Upload" /></li>
-            </ul>
-        </form>
+        <div>
+            <h2>Upload Image To Local</h2>
+            <form method="POST" action="/upload?_csrf={{ ctx.csrf | safe }}" enctype="multipart/form-data">
+                <ul>
+                    <li>Image Name:
+                        <input name="title" type="text" />
+                    </li>
+                    <li>
+                        <input name="file" type="file" />
+                    </li>
+                    <li>
+                        <input type="submit" value="Upload" />
+                    </li>
+                </ul>
+            </form>
+        </div>
+        <div>
+            <h2>七牛客户端（浏览器）分片上传</h2>
+            <h2>可以上传非常大的文件 如视频 非常nb</h2>
+            <button id="uploadButton">
+                上传文件
+            </button>
+            <div id="progress"></div>            
+            <div id="result"></div>
+        </div>
         {% endblock %}
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.17.1/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qiniu4js@1.0.13/qiniu4js.min.js"></script>
+    <script src="/public/js/uuidv5.min.js"></script>
+    <script>
+        let uploader = new Qiniu.UploaderBuilder()
+            .debug(true)//开启debug，默认false
+            .button('uploadButton')//指定上传按钮
+            .scheme("https")
+            .retry(0)//设置重传次数，默认0，不重传
+            .size(1024 * 1024)//分片大小，最多为4MB,单位为字节,默认1MB
+            .chunk(true)//是否分块上传，默认true，当chunk=true并且文件大于4MB才会进行分块上传
+            .multiple(true)//是否支持多文件选中，默认true
+            .accept(['.gif', '.png', 'video/*', 'image/*'])//过滤文件，默认无，详细配置见http://www.w3schools.com/tags/att_input_accept.asp
+            .tokenFunc(function (setToken) {
+                axios.get('/uptoken')
+                    .then(function (response) {
+                        setToken(response.data)
+                    })
+                    .catch(function (error) {
+                        alert(error);
+                    });
+            })
+            .tokenShare(false)
+            .listener({
+                onReady(tasks) {
+                    //该回调函数在图片处理前执行,也就是说task.file中的图片都是没有处理过的
+                    //选择上传文件确定后,该生命周期函数会被回调。
+
+                }, onStart(tasks) {
+                    //所有内部图片任务处理后执行
+                    //开始上传
+
+                }, onTaskGetKey(task) {
+                    //为每一个上传的文件指定key,如果不指定则由七牛服务器自行处理
+                    return `${uuidv5.URL}.${task.file.name.split('.').pop()}`;
+
+                }, onTaskProgress: function (task) {
+                    //每一个任务的上传进度,通过`task.progress`获取
+                    console.log(task.progress);
+                    document.getElementById('progress').innerHTML = task.progress + '%'
+
+                }, onTaskSuccess(task) {
+                    //一个任务上传成功后回调
+                    document.getElementById('result').innerHTML = `http://77fxsr.com2.z0.glb.qiniucdn.com/${task.result.key}`
+                }, onTaskFail(task) {
+                    //一个任务在经历重传后依然失败后回调此函数
+
+                }, onTaskRetry(task) {
+                    //开始重传
+
+                }, onFinish(tasks) {
+                    //所有任务结束后回调，注意，结束不等于都成功，该函数会在所有HTTP上传请求响应后回调(包括重传请求)。
+                }
+            })
+            .build()
+    </script>
 </body>
+
 </html>

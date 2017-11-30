@@ -25,6 +25,12 @@ class UploadController extends Controller {
     }
     this.ctx.redirect('/public/' + filename);
   }
+
+  async getUpToken() {
+    const { ctx } = this;
+    const token = await ctx.service.qiniu.getUpToken();
+    ctx.body = token;
+  }
 }
 
 module.exports = UploadController;

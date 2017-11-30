@@ -1,0 +1,26 @@
+{
+  "lang": "en",
+  "ignoreCapitalization": true,
+  "excludeFiles": [
+    "docs/*.js.html"
+  ],
+  "dictionary": [
+    "Versioning",
+    "docdash",
+    "JSDoc",
+    "js",
+    "UUID",
+    "nanoid",
+    "gzipped",
+    "Crypto",
+    "bruteforcing",
+    "cryptographically",
+    "v4",
+    "Vsevolod",
+    "Rodionov",
+    "Mokhov",
+    "Anton",
+    "Khlynovskiy",
+    "Klebanoff"
+  ]
+}

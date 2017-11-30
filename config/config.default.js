@@ -26,5 +26,9 @@ module.exports = appInfo => {
     fileSize: '10mb',
   };
 
+  config.qiniu = {
+    endpoint: 'http://demos.qiniu.com/demo/qav/uptoken.php',
+  };
+
   return config;
 };
